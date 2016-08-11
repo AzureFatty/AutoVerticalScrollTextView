@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AutoVerticalScrollTextView">
+        <attr name="delayStart" format="integer" />
+        <attr name="resetOnFinish" format="boolean" />
+        <attr name="step" format="integer" />
+        <attr name="speed" format="integer" />
+    </declare-styleable>
+</resources>
