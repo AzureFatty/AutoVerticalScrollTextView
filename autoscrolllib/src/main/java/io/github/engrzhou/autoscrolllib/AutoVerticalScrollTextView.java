@@ -43,13 +43,6 @@ public class AutoVerticalScrollTextView extends TextView {
     private MarqueeRunnable mMarqueeRunnable;
 
     private void init(Context context, AttributeSet attrs) {
-        if (mScrollThread == null) {
-            if (mMarqueeRunnable != null) {
-                mMarqueeRunnable.stop();
-            }
-            mMarqueeRunnable = new MarqueeRunnable();
-            mScrollThread = new Thread(mMarqueeRunnable);
-        }
         if (attrs != null) {
             final TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.AutoVerticalScrollTextView, 0, 0);
             delayStart = array.getInt(R.styleable.AutoVerticalScrollTextView_delayStart, 5);
@@ -152,17 +145,9 @@ public class AutoVerticalScrollTextView extends TextView {
     }
 
     public void reset() {
-        if (mMarqueeRunnable != null) {
-            mMarqueeRunnable.stop();
-        }
         nowPoint = 0;
         requestLayout();
-        if (mMarqueeRunnable != null) {
-            mMarqueeRunnable.stop();
-        }
-        mMarqueeRunnable = new MarqueeRunnable();
-        mScrollThread = new Thread(mMarqueeRunnable);
-        mScrollThread.start();
+        resetThread();
     }
 
 
@@ -172,9 +157,16 @@ public class AutoVerticalScrollTextView extends TextView {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         myHeight = getLineHeight() * getLineCount();
-        if (!mScrollThread.isAlive()) {
-            mScrollThread.start();
+        resetThread();
+    }
+
+    private void resetThread() {
+        if (mMarqueeRunnable != null) {
+            mMarqueeRunnable.stop();
         }
+        mMarqueeRunnable = new MarqueeRunnable();
+        mScrollThread = new Thread(mMarqueeRunnable);
+        mScrollThread.start();
     }
 
     @Override
@@ -220,7 +212,7 @@ public class AutoVerticalScrollTextView extends TextView {
                     break;
                 }
                 nowPoint -= step;
-                if (myHeight != 0 && nowPoint <= -myHeight) {
+                if (myHeight != 0 && nowPoint < -myHeight) {
                     if (resetOnFinish) {
                         nowPoint = 0;
                         postInvalidate();
