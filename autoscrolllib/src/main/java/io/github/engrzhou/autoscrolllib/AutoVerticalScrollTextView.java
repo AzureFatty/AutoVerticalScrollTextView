@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.text.Layout;
 import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -171,8 +172,12 @@ public class AutoVerticalScrollTextView extends TextView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        StaticLayout mTextLayout = new StaticLayout(getText(), getPaint(),
-                canvas.getWidth(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+        TextPaint textPaint = getPaint();
+        int currentTextColor = getCurrentTextColor();
+        textPaint.setColor(currentTextColor);
+        StaticLayout mTextLayout = new StaticLayout(getText(), textPaint,
+                canvas.getWidth(), Layout.Alignment.ALIGN_NORMAL,
+                getLineSpacingMultiplier(), getLineSpacingExtra(), false);
         canvas.save();
         float textX = 0;
         float textY = nowPoint;
