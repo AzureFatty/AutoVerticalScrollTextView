@@ -158,7 +158,7 @@ public class AutoVerticalScrollTextView extends TextView {
     public void reset() {
         nowPoint = 0;
         requestLayout();
-        resetThread();
+        resetStatus();
     }
 
 
@@ -169,15 +169,41 @@ public class AutoVerticalScrollTextView extends TextView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    private StaticLayout mTextLayout;
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         if (changed) {
-            resetThread();
+            resetStatus();
         }
     }
 
+    /**
+     * 状态重置
+     */
+    private synchronized void resetStatus() {
+        resetTextParams();
+        resetThread();
+    }
+
+    /**
+     * 重置/刷新文字配置信息
+     */
+    private synchronized void resetTextParams() {
+        int currentTextColor = getCurrentTextColor();
+        TextPaint textPaint = getPaint();
+        textPaint.setColor(currentTextColor);
+        mTextLayout = new StaticLayout(getText(), getPaint(),
+                getWidth(), Layout.Alignment.ALIGN_NORMAL,
+                getLineSpacingMultiplier(), getLineSpacingExtra(), false);
+    }
+
+    /**
+     * 重置线程状态
+     */
     private synchronized void resetThread() {
+
         myHeight = getLineHeight() * getLineCount();
         if (mMarqueeRunnable != null && !mMarqueeRunnable.finished) {
             mMarqueeRunnable.stop();
@@ -189,17 +215,13 @@ public class AutoVerticalScrollTextView extends TextView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        TextPaint textPaint = getPaint();
-        int currentTextColor = getCurrentTextColor();
-        textPaint.setColor(currentTextColor);
-        StaticLayout mTextLayout = new StaticLayout(getText(), textPaint,
-                canvas.getWidth(), Layout.Alignment.ALIGN_NORMAL,
-                getLineSpacingMultiplier(), getLineSpacingExtra(), false);
         canvas.save();
         float textX = 0;
         float textY = nowPoint;
         canvas.translate(textX, textY);
-        mTextLayout.draw(canvas);
+        if (mTextLayout != null) {
+            mTextLayout.draw(canvas);
+        }
         canvas.restore();
     }
 
