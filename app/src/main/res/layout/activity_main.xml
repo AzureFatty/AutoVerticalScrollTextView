@@ -24,6 +24,6 @@
         android:layout_height="match_parent"
         app:delayStart="2"
         app:resetOnFinish="true"
-        app:speed="1"
-        app:step="5" />
+        app:speed="3"
+        app:step="3" />
 </LinearLayout>

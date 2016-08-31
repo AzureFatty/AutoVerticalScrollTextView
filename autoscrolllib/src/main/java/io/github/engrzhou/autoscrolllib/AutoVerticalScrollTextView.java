@@ -24,6 +24,7 @@ public class AutoVerticalScrollTextView extends TextView {
     private int step = 5;//步进距离
     private int speed = 1;//速度=n*50ms
     private ScrollStatusListener mScrollStatusListener;//状态监听
+    private volatile boolean isScrolling;//滚动中
 
     public AutoVerticalScrollTextView(Context context) {
         super(context);
@@ -145,6 +146,15 @@ public class AutoVerticalScrollTextView extends TextView {
         this.speed = speed;
     }
 
+    /**
+     * 是否正在滚动
+     *
+     * @return
+     */
+    public boolean isScrolling() {
+        return isScrolling;
+    }
+
     public void reset() {
         nowPoint = 0;
         requestLayout();
@@ -157,12 +167,19 @@ public class AutoVerticalScrollTextView extends TextView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        myHeight = getLineHeight() * getLineCount();
-        resetThread();
     }
 
-    private void resetThread() {
-        if (mMarqueeRunnable != null) {
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (changed) {
+            resetThread();
+        }
+    }
+
+    private synchronized void resetThread() {
+        myHeight = getLineHeight() * getLineCount();
+        if (mMarqueeRunnable != null && !mMarqueeRunnable.finished) {
             mMarqueeRunnable.stop();
         }
         mMarqueeRunnable = new MarqueeRunnable();
@@ -201,6 +218,7 @@ public class AutoVerticalScrollTextView extends TextView {
 
         @Override
         public void run() {
+            isScrolling = true;
             if (mScrollStatusListener != null) {
                 mScrollStatusListener.onScrollPrepare();
             }
@@ -222,6 +240,7 @@ public class AutoVerticalScrollTextView extends TextView {
                         nowPoint = 0;
                         postInvalidate();
                     }
+                    isScrolling = false;
                     if (mScrollStatusListener != null) {
                         mScrollStatusListener.onScrollStop();
                     }
