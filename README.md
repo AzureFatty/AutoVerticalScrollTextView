@@ -2,6 +2,12 @@
 
 ![自动垂直滚动的TextView](./img/auto_scroll.gif)
 
+
+### Tip
+
+本项目非常不成熟的一个测试Demo。
+勿用于正式用途！
+
 ## License
 
     Copyright 2016, Engineer Zhou
